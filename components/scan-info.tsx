@@ -10,7 +10,7 @@ export function ScanInfo({ scanLocation, scanTimestamp }: ScanInfoProps) {
     <div className="px-5">
       <div className="bg-muted rounded-2xl p-4 border border-border">
         <h2 className="text-xs font-bold uppercase tracking-widest text-muted-foreground mb-3 font-sans">
-          Scan Details
+          Detalles del escaneo
         </h2>
         <div className="flex flex-col gap-2">
           {scanTimestamp && (

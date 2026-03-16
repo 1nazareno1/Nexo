@@ -6,15 +6,15 @@ import { ScanInfo } from "@/components/scan-info";
 // Example pet data — in production this would come from an API/database via the URL params
 const petData = {
   petName: "Luna",
-  species: "Dog",
+  species: "Perro",
   breed: "Golden Retriever",
-  color: "Golden",
-  notes: "Very friendly but shy with strangers",
+  color: "Dorado",
+  notes: "Muy amigable pero tímido con extraños.",
   ownerPhone: "+5491112345678",
   photoUrl: "/pet-photo.jpg",
   // Optional scan metadata
-  scanLocation: "Central Park, New York",
-  scanTimestamp: new Date().toLocaleString("en-US", {
+  scanLocation: "Parque Rivadavia, Buenos Aires",
+  scanTimestamp: new Date().toLocaleString("es-AR", {
     weekday: "long",
     year: "numeric",
     month: "long",
