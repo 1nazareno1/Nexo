@@ -1,10 +1,11 @@
 // app/p/[codigo]/page.tsx
 import { supabase } from "@/lib/supabase";
+export const dynamic = 'force-dynamic';
 
 export default async function Page({ params }: any) {
   const { codigo } = await params;
 
-  console.log("codigo:", codigo);
+
 
   // 1. Buscar QR
   const { data: qr, error: errorQR } = await supabase
@@ -13,10 +14,10 @@ export default async function Page({ params }: any) {
     .eq("codigo_qr", codigo)
     .maybeSingle();
 
-  console.log("qr:", qr);
-  console.log("errorQR:", errorQR);
 
-  // ❌ QR no existe
+  
+
+  //  QR no existe
   if (!qr) {
     return (
       <div className="flex flex-col items-center justify-center min-h-screen bg-gray-50 px-4 py-8">
@@ -27,7 +28,7 @@ export default async function Page({ params }: any) {
     );
   }
 
-  // ❌ QR sin activar
+  //  QR sin activar
   if (!qr.activo) {
     return (
       <div className="flex flex-col items-center justify-center min-h-screen">
@@ -43,7 +44,7 @@ export default async function Page({ params }: any) {
   }
 
   // 2. Buscar mascota
-  console.log("qr.id_mascota:", qr.id_mascota);
+
 
   const { data: mascota, error: errorMascota } = await supabase
     .from("MASCOTA")
@@ -51,8 +52,7 @@ export default async function Page({ params }: any) {
     .eq("id_mascota", qr.id_mascota)
     .maybeSingle();
 
-  console.log("mascota:", mascota);
-  console.log("errorMascota:", errorMascota);
+
 
   if (!mascota) {
     return (
@@ -72,34 +72,59 @@ export default async function Page({ params }: any) {
 
   const telefono = usuario?.telefono || "";
 
+
   // 4. Render final
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen bg-gray-50 px-4 py-8">
-      <span className="text-5xl mb-6">🐾</span>
-      <h1 className="text-3xl font-bold mb-2">{mascota.nombre}</h1>
-      <p className="text-lg text-gray-700 mb-1">
+  <div className="min-h-screen bg-gray-100 flex items-center justify-center px-4">
+    <div className="bg-white rounded-2xl shadow-lg p-6 w-full max-w-sm text-center">
+
+      {/* Imagen */}
+      {mascota.imagen_url && (
+        <img
+          src={mascota.imagen_url}
+          alt={mascota.nombre}
+          className="w-40 h-40 object-cover rounded-xl mx-auto mb-4"
+        />
+      )}
+
+      {/* Nombre */}
+      <h1 className="text-2xl font-bold mb-1">
+        {mascota.nombre}
+      </h1>
+
+      {/* Info básica */}
+      <p className="text-gray-600 mb-2">
         {mascota.especie} • {mascota.raza}
       </p>
-      <p className="text-md text-gray-500 mb-4">
+
+      <p className="text-sm text-gray-500 mb-4">
         Color: {mascota.color}
       </p>
 
-      <div className="flex flex-col gap-4 w-full max-w-xs">
+      {/* Mensaje humano */}
+      <div className="bg-yellow-50 text-yellow-800 text-sm p-3 rounded-lg mb-4">
+        Si encontraste esta mascota, por favor contactá a su dueño 🙏
+      </div>
+
+      {/* Botones */}
+      <div className="flex flex-col gap-3">
         <a
           href={`tel:${telefono.replace(/\s+/g, "")}`}
-          className="bg-blue-600 text-white py-3 rounded-lg text-center"
+          className="bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-lg font-medium transition"
         >
-          Llamar
+          📞 Llamar
         </a>
 
         <a
           href={`https://wa.me/${telefono.replace(/\D/g, "")}`}
           target="_blank"
-          className="bg-green-500 text-white py-3 rounded-lg text-center"
+          className="bg-green-500 hover:bg-green-600 text-white py-3 rounded-lg font-medium transition"
         >
-          WhatsApp
+          💬 WhatsApp
         </a>
       </div>
+
     </div>
-  );
+  </div>
+);
 }
