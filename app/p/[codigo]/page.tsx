@@ -51,16 +51,23 @@ export default async function Page({ params }: any) {
   // QR activo pero sin mascota vinculada -> formulario de carga
   if (!qr.id_mascota) {
     return (
-      <div className="min-h-screen bg-gray-100 flex items-center justify-center p-4">
-        <div className="w-full max-w-lg px-4">
-          <div className="bg-white rounded-2xl p-6 shadow-lg">
-            <div className="flex flex-col items-center gap-3 mb-5">
-              <img src="/icon.svg" alt="Nexo" className="h-12 w-12" />
-              <h1 className="text-2xl font-bold">Registrar mascota</h1>
+      <div className="min-h-screen bg-amber-50 flex items-center justify-center px-4 py-8">
+        <div className="w-full max-w-md">
+          <div className="rounded-[40px] border border-emerald-100 bg-white/95 p-6 shadow-[0_25px_80px_rgba(16,185,129,0.14)] backdrop-blur-sm">
+            <div className="mb-6 flex flex-col items-center gap-4 text-center">
+              <div className="flex h-24 w-24 items-center justify-center rounded-[32px] bg-white shadow-inner border border-emerald-100 p-3">
+                <img
+                  src="/Nexo.png"
+                  alt="Nexo"
+                  className="h-16 w-16 object-contain" />
+              </div>
+              <div>
+                <h1 className="text-2xl font-bold tracking-tight text-emerald-950">Registrar mascota</h1>
+                <p className="mt-2 text-sm text-slate-600">
+                  Este collar está activo, ahora podés registrar tu mascota para que alguien pueda contactarte si la encuentra.
+                </p>
+              </div>
             </div>
-            <p className="text-gray-600 mb-5">
-              Este collar está activo, ahora podés registrar tu mascota para que alguien pueda contactarte si la encuentra.
-            </p>
             <PetRegisterForm qrCode={codigo} />
           </div>
         </div>
@@ -102,12 +109,12 @@ export default async function Page({ params }: any) {
       <div className="absolute bottom-40 left-12 text-4xl opacity-10 pointer-events-none">🐾</div>
       <div className="absolute bottom-24 right-16 text-5xl opacity-10 pointer-events-none">🌱</div>
       <div className="absolute top-1/2 right-1/4 text-3xl opacity-5 pointer-events-none">✿</div>
-      
+
       <div className="relative z-10">
         {/* Cintas/Ribbons del collar */}
         <div className="flex justify-center gap-12 mb-3">
-          <div className="w-6 h-12 bg-gradient-to-b from-green-700 to-green-800 rounded-b shadow-md" style={{transform: 'skewX(-10deg)'}}></div>
-          <div className="w-6 h-12 bg-gradient-to-b from-green-700 to-green-800 rounded-b shadow-md" style={{transform: 'skewX(10deg)'}}></div>
+          <div className="w-6 h-12 bg-gradient-to-b from-green-700 to-green-800 rounded-b shadow-md" style={{ transform: 'skewX(-10deg)' }}></div>
+          <div className="w-6 h-12 bg-gradient-to-b from-green-700 to-green-800 rounded-b shadow-md" style={{ transform: 'skewX(10deg)' }}></div>
         </div>
 
         {/* Tarjeta premium - Collar */}
@@ -136,10 +143,10 @@ export default async function Page({ params }: any) {
 
               {/* Marco y imagen */}
               {mascota.imagen_url && (
-                <div className="relative w-44 h-44">
+                <div className="relative w-52 h-52">
                   {/* Anillo decorativo exterior */}
                   <div className="absolute -inset-3 border-4 border-green-200 rounded-2xl opacity-40"></div>
-                  
+
                   {/* Contenedor con sombra suave */}
                   <div className="relative h-full w-full bg-white rounded-2xl shadow-lg border-4 border-green-100 overflow-hidden">
                     <img

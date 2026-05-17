@@ -2,7 +2,7 @@
 
 import { ChangeEvent, useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import { useForm } from "react-hook-form";
+import { useForm, UseFormRegister, FieldError } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { countryCodes } from "@/components/phone-country-codes";
@@ -18,8 +18,60 @@ const schema = z.object({
 
 type FormData = z.infer<typeof schema>;
 
-interface PetRegisterFormProps {
+type PetRegisterFormProps = {
   qrCode: string;
+};
+
+type TextFieldConfig = {
+  id: "nombre" | "especie" | "raza" | "color";
+  label: string;
+  placeholder: string;
+  hint: string;
+  maxLength: number;
+};
+
+const textFields: TextFieldConfig[] = [
+  { id: "nombre", label: "Nombre", placeholder: "Nombre de la mascota", hint: "Máximo 50 caracteres.", maxLength: 50 },
+  { id: "especie", label: "Especie", placeholder: "Ej: Perro, Gato", hint: "Máximo 30 caracteres.", maxLength: 30 },
+  { id: "raza", label: "Raza", placeholder: "Ej: Labrador, Siamés", hint: "Máximo 50 caracteres.", maxLength: 50 },
+  { id: "color", label: "Color", placeholder: "Color de la mascota", hint: "Máximo 30 caracteres.", maxLength: 30 },
+];
+
+function TextField({
+  id,
+  label,
+  placeholder,
+  hint,
+  maxLength,
+  register,
+  error,
+}: {
+  id: "nombre" | "especie" | "raza" | "color";
+  label: string;
+  placeholder: string;
+  hint: string;
+  maxLength: number;
+  register: UseFormRegister<FormData>;
+  error?: FieldError;
+}) {
+  return (
+    <div className="space-y-2">
+      <label htmlFor={id} className="block text-sm font-semibold text-slate-800">
+        {label}
+      </label>
+      <input
+        id={id}
+        {...register(id)}
+        placeholder={placeholder}
+        maxLength={maxLength}
+        className="w-full rounded-3xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-emerald-400 focus:ring-1 focus:ring-emerald-200 focus:ring-inset"
+      />
+      <div className="flex items-center justify-between gap-2 text-xs text-slate-500">
+        <span>{hint}</span>
+        {error?.message ? <span className="text-red-600">{error.message}</span> : null}
+      </div>
+    </div>
+  );
 }
 
 export default function PetRegisterForm({ qrCode }: PetRegisterFormProps) {
@@ -31,24 +83,6 @@ export default function PetRegisterForm({ qrCode }: PetRegisterFormProps) {
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
-  function openFilePicker() {
-    fileInputRef.current?.click();
-  }
-
-  useEffect(() => {
-    if (!selectedFile) {
-      setPreviewUrl(null);
-      return;
-    }
-
-    const url = URL.createObjectURL(selectedFile);
-    setPreviewUrl(url);
-
-    return () => {
-      URL.revokeObjectURL(url);
-    };
-  }, [selectedFile]);
-
   const {
     register,
     handleSubmit,
@@ -59,6 +93,22 @@ export default function PetRegisterForm({ qrCode }: PetRegisterFormProps) {
       codigoPais: "+54",
     },
   });
+
+  useEffect(() => {
+    if (!selectedFile) {
+      setPreviewUrl(null);
+      return;
+    }
+
+    const url = URL.createObjectURL(selectedFile);
+    setPreviewUrl(url);
+
+    return () => URL.revokeObjectURL(url);
+  }, [selectedFile]);
+
+  function openFilePicker() {
+    fileInputRef.current?.click();
+  }
 
   function handleFileChange(event: ChangeEvent<HTMLInputElement>) {
     const file = event.target.files?.[0] || null;
@@ -75,8 +125,7 @@ export default function PetRegisterForm({ qrCode }: PetRegisterFormProps) {
       return;
     }
 
-    const maxSizeInBytes = 5 * 1024 * 1024;
-    if (file.size > maxSizeInBytes) {
+    if (file.size > 5 * 1024 * 1024) {
       setSelectedFile(null);
       setFileError("La imagen no puede pesar más de 5 MB.");
       return;
@@ -121,7 +170,7 @@ export default function PetRegisterForm({ qrCode }: PetRegisterFormProps) {
 
       const telefonoConCodigo = `${data.codigoPais}${data.telefono}`;
 
-      const res = await fetch(`/api/qr/${encodeURIComponent(qrCode)}/register`, {
+      const response = await fetch(`/api/qr/${encodeURIComponent(qrCode)}/register`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -134,19 +183,17 @@ export default function PetRegisterForm({ qrCode }: PetRegisterFormProps) {
         }),
       });
 
-      const resJson = await res.json();
+      const result = await response.json();
 
-      if (!res.ok) {
+      if (!response.ok) {
         setStatus("error");
-        setMessage(resJson.error || "No se pudo registrar la mascota. Intenta de nuevo.");
+        setMessage(result.error || "No se pudo registrar la mascota. Intenta de nuevo.");
         return;
       }
 
       setStatus("success");
       setMessage("Mascota registrada con éxito. Redirigiendo...");
-      setTimeout(() => {
-        router.refresh();
-      }, 1200);
+      setTimeout(() => router.refresh(), 1200);
     } catch (error) {
       console.error(error);
       setStatus("error");
@@ -155,82 +202,38 @@ export default function PetRegisterForm({ qrCode }: PetRegisterFormProps) {
   }
 
   return (
-    <div className="mx-auto w-full max-w-md rounded-2xl bg-white p-6 shadow">
-      <h2 className="text-xl font-bold mb-4">Registrar mascota para este QR</h2>
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-        <div>
-          <label htmlFor="nombre" className="block text-sm font-medium text-gray-700">
-            Nombre
-          </label>
-          <input
-            id="nombre"
-            {...register("nombre")}
-            placeholder="Nombre de la mascota"
-            maxLength={50}
-            required
-            className="mt-1 w-full rounded-lg border px-3 py-2"
+    <div className="mx-auto w-full max-w-md rounded-[32px] border border-emerald-100 bg-white/95 p-6 shadow-[0_20px_80px_rgba(16,185,129,0.12)]">
+      <div className="mb-6 rounded-3xl bg-emerald-50 px-4 py-4 text-center text-sm font-semibold text-emerald-800 shadow-sm">
+        Información de tu mascota
+      </div>
+
+      <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
+        {textFields.map((field) => (
+          <TextField
+            key={field.id}
+            id={field.id}
+            label={field.label}
+            placeholder={field.placeholder}
+            hint={field.hint}
+            maxLength={field.maxLength}
+            register={register}
+            error={errors[field.id] as FieldError | undefined}
           />
-          <p className="text-xs text-gray-500">Máximo 50 caracteres.</p>
-          {errors.nombre && <p className="text-red-600 text-sm">{errors.nombre.message}</p>}
-        </div>
-        <div>
-          <label htmlFor="especie" className="block text-sm font-medium text-gray-700">
-            Especie
-          </label>
-          <input
-            id="especie"
-            {...register("especie")}
-            placeholder="Ej: Perro, Gato"
-            maxLength={30}
-            required
-            className="mt-1 w-full rounded-lg border px-3 py-2"
-          />
-          <p className="text-xs text-gray-500">Máximo 30 caracteres.</p>
-          {errors.especie && <p className="text-red-600 text-sm">{errors.especie.message}</p>}
-        </div>
-        <div>
-          <label htmlFor="raza" className="block text-sm font-medium text-gray-700">
-            Raza
-          </label>
-          <input
-            id="raza"
-            {...register("raza")}
-            placeholder="Ej: Labrador, Siamés"
-            maxLength={50}
-            required
-            className="mt-1 w-full rounded-lg border px-3 py-2"
-          />
-          <p className="text-xs text-gray-500">Máximo 50 caracteres.</p>
-          {errors.raza && <p className="text-red-600 text-sm">{errors.raza.message}</p>}
-        </div>
-        <div>
-          <label htmlFor="color" className="block text-sm font-medium text-gray-700">
-            Color
-          </label>
-          <input
-            id="color"
-            {...register("color")}
-            placeholder="Color de la mascota"
-            maxLength={30}
-            required
-            className="mt-1 w-full rounded-lg border px-3 py-2"
-          />
-          <p className="text-xs text-gray-500">Máximo 30 caracteres.</p>
-          {errors.color && <p className="text-red-600 text-sm">{errors.color.message}</p>}
-        </div>
-        <div>
-          <label htmlFor="telefono" className="block text-sm font-medium text-gray-700">
+        ))}
+
+        <div className="space-y-2">
+          <label htmlFor="telefono" className="block text-sm font-semibold text-slate-800">
             Teléfono del dueño
           </label>
-          <div className="mt-1 flex gap-2">
+          <div className="flex gap-3">
             <select
               id="codigoPais"
               {...register("codigoPais")}
-              className="w-32 flex-shrink-0 rounded-lg border px-3 py-2 text-sm"
+              className="w-32 flex-shrink-0 rounded-3xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-emerald-400 focus:ring-1 focus:ring-emerald-200 focus:ring-inset"
             >
               {countryCodes.map((code) => (
                 <option key={code.value} value={code.value}>
-                  {code.label}
+                  {code.value}
                 </option>
               ))}
             </select>
@@ -239,18 +242,23 @@ export default function PetRegisterForm({ qrCode }: PetRegisterFormProps) {
               {...register("telefono")}
               placeholder="Número sin espacios"
               maxLength={15}
-              required
-              className="flex-1 rounded-lg border px-3 py-2"
+              className="w-full rounded-3xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-emerald-400 focus:ring-1 focus:ring-emerald-200 focus:ring-inset"
             />
           </div>
-          <p className="text-xs text-gray-500">Incluye el código de país en el desplegable. Máximo 15 dígitos para el número.</p>
-          {errors.codigoPais && <p className="text-red-600 text-sm">{errors.codigoPais.message}</p>}
-          {errors.telefono && <p className="text-red-600 text-sm">{errors.telefono.message}</p>}
+          <div className="text-xs text-slate-500">
+            Incluye el código de país en el desplegable. Máximo 15 dígitos para el número.
+          </div>
+          <div className="space-y-1 text-sm text-red-600">
+            {errors.codigoPais && <p>{errors.codigoPais.message}</p>}
+            {errors.telefono && <p>{errors.telefono.message}</p>}
+          </div>
         </div>
-        <div>
-          <label className="block text-sm font-medium text-gray-700">
-            Foto de la mascota <span className="text-gray-500">(opcional)</span>
-          </label>
+
+        <div className="space-y-3">
+          <div className="flex items-center justify-between">
+            <span className="text-sm font-semibold text-slate-800">Foto de la mascota</span>
+            <span className="text-xs text-slate-500">(opcional)</span>
+          </div>
           <input
             ref={fileInputRef}
             type="file"
@@ -262,36 +270,32 @@ export default function PetRegisterForm({ qrCode }: PetRegisterFormProps) {
           <button
             type="button"
             onClick={openFilePicker}
-            className="mt-2 inline-flex items-center justify-center rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 shadow-sm transition hover:bg-gray-50"
+            className="inline-flex w-full items-center justify-center rounded-3xl border border-dashed border-slate-300 bg-slate-50 px-4 py-3 text-sm font-medium text-slate-700 transition hover:border-emerald-400 hover:bg-emerald-50"
           >
             {selectedFile ? "Cambiar foto" : "Seleccionar foto"}
           </button>
-          {selectedFile && (
-            <p className="mt-2 text-sm text-gray-600">Archivo: {selectedFile.name}</p>
-          )}
-          {fileError && <p className="text-red-600 text-sm mt-1">{fileError}</p>}
-          {previewUrl && (
-            <img
-              src={previewUrl}
-              alt="Preview de mascota"
-              className="mt-3 h-28 w-full rounded-lg object-cover"
-            />
-          )}
+          {fileError ? <p className="text-sm text-red-600">{fileError}</p> : null}
+          {previewUrl ? (
+            <div className="overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm">
+              <img src={previewUrl} alt="Preview de mascota" className="h-32 w-full object-cover" />
+            </div>
+          ) : null}
         </div>
 
         <button
           type="submit"
-          className="w-full rounded-lg bg-blue-600 py-2 text-white hover:bg-blue-700 disabled:opacity-50"
+          className="w-full rounded-3xl bg-emerald-600 px-4 py-3 text-sm font-semibold text-white shadow-lg shadow-emerald-200 transition hover:bg-emerald-700 disabled:cursor-not-allowed disabled:opacity-70"
           disabled={status === "loading"}
         >
           {status === "loading" ? "Guardando..." : "Registrar mascota"}
         </button>
       </form>
-      {message && (
-        <p className={`mt-3 text-sm ${status === "error" ? "text-red-600" : "text-green-700"}`}>
+
+      {message ? (
+        <p className={`mt-4 text-center text-sm ${status === "error" ? "text-red-600" : "text-emerald-700"}`}>
           {message}
         </p>
-      )}
+      ) : null}
     </div>
   );
 }
