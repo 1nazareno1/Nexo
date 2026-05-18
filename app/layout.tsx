@@ -10,9 +10,9 @@ const _plusJakartaSans = Plus_Jakarta_Sans({
 const _geistMono = Geist_Mono({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: 'Found a Pet? Contact the Owner',
-  description: 'This pet has a QR tag. Scan to quickly contact the owner and help reunite them.',
-  generator: 'v0.app',
+  title: 'Nexo - QR para mascotas',
+  description: 'Esta aplicación permite guardar la información de tu mascota vinculada a un QR para su seguridad y fácil contacto en caso de pérdida.',
+  generator: 'Nexo',
   icons: {
     icon: '/iconNexo.png',
     apple: '/iconNexo.png',
