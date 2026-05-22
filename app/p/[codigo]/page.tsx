@@ -3,6 +3,13 @@ import { supabase } from "@/lib/supabase";
 import PetRegisterForm from "@/components/pet-register-form";
 export const dynamic = 'force-dynamic';
 
+// importaciones del otro diseño
+import { Phone, MessageCircle, Dog, Palette, Check } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
+import { Card } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+
+
 export default async function Page({ params }: any) {
   const { codigo } = await params;
 
@@ -100,120 +107,175 @@ export default async function Page({ params }: any) {
 
   const telefono = usuario?.telefono || "";
 
+  const petInfo = {
+    name: mascota.nombre || 'Sin nombre',
+    imageUrl: mascota.imagen_url || '/placeholder.jpg',
+    breed: mascota.raza || '',
+    species: mascota.especie || '',
+    color: mascota.color || '',
+    phone: telefono,
+    observations: mascota.observaciones || ''
+  };
+
   // 4. Render final
   return (
-    <div className="min-h-screen bg-gradient-to-b from-amber-50 via-orange-50 to-yellow-50 flex items-center justify-center px-4 py-8 relative overflow-hidden">
-      {/* Decoraciones de fondo sutiles */}
-      <div className="absolute top-20 left-8 text-5xl opacity-10 pointer-events-none">🌿</div>
-      <div className="absolute top-32 right-10 text-4xl opacity-10 pointer-events-none">🍃</div>
-      <div className="absolute bottom-40 left-12 text-4xl opacity-10 pointer-events-none">🐾</div>
-      <div className="absolute bottom-24 right-16 text-5xl opacity-10 pointer-events-none">🌱</div>
-      <div className="absolute top-1/2 right-1/4 text-3xl opacity-5 pointer-events-none">✿</div>
+    <div className="min-h-screen bg-white">
+      {/* Mobile-first container with max width for desktop */}
+      <div className="max-w-2xl mx-auto px-4 sm:px-6 py-6 sm:py-12">
 
-      <div className="relative z-10">
-        {/* Cintas/Ribbons del collar */}
-        <div className="flex justify-center gap-12 mb-3">
-          <div className="w-6 h-12 bg-gradient-to-b from-green-700 to-green-800 rounded-b shadow-md" style={{ transform: 'skewX(-10deg)' }}></div>
-          <div className="w-6 h-12 bg-gradient-to-b from-green-700 to-green-800 rounded-b shadow-md" style={{ transform: 'skewX(10deg)' }}></div>
+        {/* Header */}
+        <header className="flex items-center justify-between mb-8">
+          <div className="flex items-center gap-3">
+            <img
+              src="/Nexo.png"
+              alt="NEXO Logo"
+              className="w-10 h-10 object-contain"
+            />
+            <h1 className="text-xl font-semibold text-gray-900">NEXO</h1>
+          </div>
+          <Badge className="bg-emerald-50 text-emerald-700 border-emerald-200 hover:bg-emerald-50">
+            <Check className="w-3 h-3 mr-1" />
+            Collar activo
+          </Badge>
+        </header>
+
+        {/* Main Section */}
+        <div className="text-center mb-12">
+          <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-3">
+            ¡Hola! Soy {petInfo.name}
+          </h2>
+          <p className="text-gray-600 text-lg">
+            Mi collar está activo y vinculado con mi familia.
+          </p>
         </div>
 
-        {/* Tarjeta premium - Collar */}
-        <div className="bg-gradient-to-b from-orange-50 to-amber-50 rounded-3xl shadow-2xl overflow-hidden w-full max-w-sm border-2 border-green-200 relative" style={{
-          backgroundImage: 'radial-gradient(circle at 20% 50%, rgba(180, 200, 140, 0.05) 0%, transparent 50%), radial-gradient(circle at 80% 80%, rgba(200, 150, 100, 0.05) 0%, transparent 50%)'
-        }}>
-          {/* Anilla superior metálica */}
-          <div className="absolute top-0 left-1/2 transform -translate-x-1/2 -translate-y-3 w-14 h-6 bg-gradient-to-b from-yellow-400 to-yellow-600 rounded-full shadow-lg border-2 border-yellow-700"></div>
+        {/* Main Card */}
+        <Card className="overflow-hidden border-gray-100 shadow-lg shadow-gray-100/50 mb-8">
+          <div className="grid md:grid-cols-2 gap-0">
 
-          {/* Header con logo nexo */}
-          <div className="bg-gradient-to-b from-green-100 to-amber-50 px-6 pt-8 pb-4 text-center border-b border-green-100">
-            <h2 className="text-lg font-bold text-green-800">nexo</h2>
-            <p className="text-xs text-green-700 font-medium">Collar de identificación</p>
-          </div>
-
-          {/* Contenido principal */}
-          <div className="px-6 py-6">
-            {/* Marco decorativo con imagen */}
-            <div className="mb-6 flex justify-center relative">
-              {/* Decoración superior */}
-              <div className="absolute top-0 left-1/2 transform -translate-x-1/2 -translate-y-3 text-xl opacity-40">
-                👁️
+            {/* Left side - Pet Image */}
+            <div className="relative bg-gradient-to-br from-gray-50 to-gray-100 p-8 flex flex-col items-center justify-center">
+              <div className="relative w-full max-w-sm aspect-square">
+                <img
+                  src={petInfo.imageUrl}
+                  alt={`${petInfo.name} - ${petInfo.breed}`}
+                  className="w-full h-full object-cover rounded-3xl shadow-xl"
+                />
               </div>
-              <div className="absolute top-2 left-0 text-xs opacity-30">🍃</div>
-              <div className="absolute top-2 right-0 text-xs opacity-30">🍃</div>
+            </div>
 
-              {/* Marco y imagen */}
-              {mascota.imagen_url && (
-                <div className="relative w-52 h-52">
-                  {/* Anillo decorativo exterior */}
-                  <div className="absolute -inset-3 border-4 border-green-200 rounded-2xl opacity-40"></div>
+            {/* Right side - Pet Info */}
+            <div className="p-8 md:p-10 bg-white">
+              <h3 className="text-2xl font-bold text-gray-900 mb-6">
+                Información de la mascota
+              </h3>
 
-                  {/* Contenedor con sombra suave */}
-                  <div className="relative h-full w-full bg-white rounded-2xl shadow-lg border-4 border-green-100 overflow-hidden">
-                    <img
-                      src={mascota.imagen_url}
-                      alt={mascota.nombre}
-                      className="w-full h-full object-cover"
-                    />
+              <div className="space-y-5">
+                {/* Name */}
+                <div className="flex items-start gap-4">
+                  <div className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0" style={{ backgroundColor: '#F5F1EB' }}>
+                    <Dog className="w-5 h-5" style={{ color: '#B8935C' }} />
+                  </div>
+                  <div className="flex-1">
+                    <p className="text-sm text-gray-500 mb-1">Nombre</p>
+                    <p className="text-lg font-semibold text-gray-900">{petInfo.name}</p>
                   </div>
                 </div>
-              )}
 
-              {/* Decoración inferior */}
-              <div className="absolute bottom-0 left-2 text-xs opacity-30">🐾</div>
-              <div className="absolute bottom-0 right-2 text-xs opacity-30">🐾</div>
-            </div>
+                {/* Species */}
+                <div className="flex items-start gap-4">
+                  <div className="w-10 h-10 rounded-xl bg-emerald-50 flex items-center justify-center flex-shrink-0">
+                    <Dog className="w-5 h-5 text-emerald-600" />
+                  </div>
+                  <div className="flex-1">
+                    <p className="text-sm text-gray-500 mb-1">Especie</p>
+                    <p className="text-lg font-semibold text-gray-900">{petInfo.species}</p>
+                  </div>
+                </div>
 
-            {/* Nombre en lowercase, grande y elegante */}
-            <h1 className="text-3xl font-bold text-amber-900 text-center mb-1 tracking-wide">{mascota.nombre.toLowerCase()}</h1>
+                {/* Breed */}
+                <div className="flex items-start gap-4">
+                  <div className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0" style={{ backgroundColor: '#F5F1EB' }}>
+                    <Dog className="w-5 h-5" style={{ color: '#B8935C' }} />
+                  </div>
+                  <div className="flex-1">
+                    <p className="text-sm text-gray-500 mb-1">Raza</p>
+                    <p className="text-lg font-semibold text-gray-900">{petInfo.breed}</p>
+                  </div>
+                </div>
 
-            {/* Especie y raza */}
-            <p className="text-center text-sm text-amber-800 font-semibold mb-1">
-              {mascota.especie} • {mascota.raza}
-            </p>
+                {/* Color */}
+                <div className="flex items-start gap-4">
+                  <div className="w-10 h-10 rounded-xl bg-emerald-50 flex items-center justify-center flex-shrink-0">
+                    <Palette className="w-5 h-5 text-emerald-600" />
+                  </div>
+                  <div className="flex-1">
+                    <p className="text-sm text-gray-500 mb-1">Color</p>
+                    <p className="text-lg font-semibold text-gray-900">{petInfo.color}</p>
+                  </div>
+                </div>
 
-            {/* Color */}
-            <p className="text-center text-xs text-amber-700 mb-5">Color: {mascota.color}</p>
+                {/* Phone */}
+                <div className="flex items-start gap-4">
+                  <div className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0" style={{ backgroundColor: '#F5F1EB' }}>
+                    <Phone className="w-5 h-5" style={{ color: '#B8935C' }} />
+                  </div>
+                  <div className="flex-1">
+                    <p className="text-sm text-gray-500 mb-1">Teléfono del dueño</p>
+                    <p className="text-lg font-semibold text-gray-900">{petInfo.phone}</p>
+                  </div>
+                </div>
 
-            {/* Separador decorativo */}
-            <div className="flex items-center justify-center gap-2 mb-4 opacity-30">
-              <span className="text-xs">✿</span>
-              <div className="flex-1 h-px bg-gradient-to-r from-transparent via-green-300 to-transparent"></div>
-              <span className="text-xs">✿</span>
-            </div>
-
-            {/* Mensaje informativo */}
-            <div className="bg-gradient-to-r from-green-100 to-lime-100 text-amber-900 text-xs p-3 rounded-2xl mb-5 border border-green-200 shadow-sm text-center leading-relaxed font-medium">
-              Si encontraste esta mascota, por favor contactá a su dueño 🙏
-            </div>
-
-            {/* Botones mejorados */}
-            <div className="flex flex-col gap-2.5">
-              <a
-                href={`tel:${telefono.replace(/\s+/g, "")}`}
-                className="bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white py-3 rounded-full font-bold transition transform hover:scale-105 shadow-lg flex items-center justify-center gap-2 text-sm"
-              >
-                <span>📞</span>
-                <span>Llamar</span>
-              </a>
-
-              <a
-                href={`https://wa.me/${telefono.replace(/\D/g, "")}`}
-                target="_blank"
-                className="bg-gradient-to-r from-green-400 to-lime-500 hover:from-green-500 hover:to-lime-600 text-white py-3 rounded-full font-bold transition transform hover:scale-105 shadow-lg flex items-center justify-center gap-2 text-sm"
-              >
-                <span>💬</span>
-                <span>WhatsApp</span>
-              </a>
+                {mascota.observaciones ? (
+                  <div className="flex items-start gap-4">
+                    <div className="w-10 h-10 rounded-xl bg-emerald-50 flex items-center justify-center flex-shrink-0" >
+                      <MessageCircle className="w-5 h-5 text-emerald-600" />
+                    </div>
+                    <div className="flex-1">
+                      <p className="text-sm text-gray-500 mb-1">Observaciones</p>
+                      <p className="text-lg font-semibold text-gray-900">{petInfo.observations}</p>
+                    </div>
+                  </div>
+                ) : null}
+              </div>
             </div>
           </div>
+        </Card>
 
-          {/* Footer decorativo */}
-          <div className="bg-gradient-to-t from-green-100 to-transparent px-6 py-4 flex justify-center gap-3 text-lg opacity-30">
-            <span>🌿</span>
-            <span>🐾</span>
-            <span>🌿</span>
+        {/* Contact Section */}
+        <div className="bg-gradient-to-br from-emerald-50 to-green-50 rounded-3xl p-8 sm:p-10 mb-8">
+          <div className="text-center mb-6">
+            <h3 className="text-2xl font-bold text-gray-900 mb-2">
+              Si encontraste a esta mascota
+            </h3>
+            <p className="text-gray-700 text-lg">
+              Por favor contactá al dueño para ayudar a que vuelva a casa.
+            </p>
+          </div>
+
+          <div className="flex flex-col sm:flex-row gap-4 max-w-md mx-auto">
+            <Button asChild className="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white h-14 text-lg rounded-xl shadow-lg shadow-emerald-200/50 transition-all hover:shadow-xl hover:shadow-emerald-300/50">
+              <a href={`https://wa.me/${telefono}`} target="_blank" rel="noopener noreferrer">
+                <MessageCircle className="w-5 h-5 mr-2" />
+                WhatsApp
+              </a>
+            </Button>
+
+            <Button asChild variant="outline" className="flex-1 border-2 h-14 text-lg rounded-xl shadow-sm transition-all" style={{ borderColor: '#B8935C', color: '#B8935C' }}>
+              <a href={`tel:${telefono}`}>
+                <Phone className="w-5 h-5 mr-2" />
+                Llamar
+              </a>
+            </Button>
           </div>
         </div>
+
+        {/* Footer */}
+        <footer className="text-center py-8">
+          <p className="text-gray-500">
+            Gracias por ayudar a que más mascotas vuelvan a casa.
+          </p>
+        </footer>
       </div>
     </div>
   );
