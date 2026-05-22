@@ -12,6 +12,7 @@ const schema = z.object({
   especie: z.string().min(1, "Especie es requerida").max(30, "Máximo 30 caracteres"),
   raza: z.string().min(1, "Raza es requerida").max(50, "Máximo 50 caracteres"),
   color: z.string().min(1, "Color es requerido").max(30, "Máximo 30 caracteres"),
+  observaciones: z.string().max(50, "Máximo 50 caracteres").optional(),
   codigoPais: z.string().regex(/^\+\d{1,3}$/, "Código de país inválido"),
   telefono: z.string().min(4, "Teléfono es requerido").max(15, "Máximo 15 caracteres").regex(/^\d+$/, "Solo números"),
 });
@@ -23,7 +24,7 @@ type PetRegisterFormProps = {
 };
 
 type TextFieldConfig = {
-  id: "nombre" | "especie" | "raza" | "color";
+  id: "nombre" | "especie" | "raza" | "color" | "observaciones";
   label: string;
   placeholder: string;
   hint: string;
@@ -35,6 +36,7 @@ const textFields: TextFieldConfig[] = [
   { id: "especie", label: "Especie", placeholder: "Ej: Perro, Gato", hint: "Máximo 30 caracteres.", maxLength: 30 },
   { id: "raza", label: "Raza", placeholder: "Ej: Labrador, Siamés", hint: "Máximo 50 caracteres.", maxLength: 50 },
   { id: "color", label: "Color", placeholder: "Color de la mascota", hint: "Máximo 30 caracteres.", maxLength: 30 },
+  { id: "observaciones", label: "Observaciones", placeholder: "Ej: no puede comer alimentos especiales", hint: "Máximo 50 caracteres.", maxLength: 50 },
 ];
 
 function TextField({
@@ -46,7 +48,7 @@ function TextField({
   register,
   error,
 }: {
-  id: "nombre" | "especie" | "raza" | "color";
+  id: "nombre" | "especie" | "raza" | "color" | "observaciones";
   label: string;
   placeholder: string;
   hint: string;
@@ -178,6 +180,7 @@ export default function PetRegisterForm({ qrCode }: PetRegisterFormProps) {
           especie: data.especie,
           raza: data.raza,
           color: data.color,
+          observaciones: data.observaciones,
           telefono: telefonoConCodigo,
           imagen_url: imageUrl,
         }),
