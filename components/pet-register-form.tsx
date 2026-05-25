@@ -127,9 +127,9 @@ export default function PetRegisterForm({ qrCode }: PetRegisterFormProps) {
       return;
     }
 
-    if (file.size > 5 * 1024 * 1024) {
+    if (file.size > 10 * 1024 * 1024) {
       setSelectedFile(null);
-      setFileError("La imagen no puede pesar más de 5 MB.");
+      setFileError("La imagen no puede pesar más de 10 MB.");
       return;
     }
 
