@@ -6,6 +6,7 @@ import { useForm, UseFormRegister, FieldError } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { countryCodes } from "@/components/phone-country-codes";
+import imageCompression from "browser-image-compression";
 
 const schema = z.object({
   nombre: z.string().min(1, "Nombre es requerido").max(50, "Máximo 50 caracteres"),
@@ -108,11 +109,9 @@ export default function PetRegisterForm({ qrCode }: PetRegisterFormProps) {
     return () => URL.revokeObjectURL(url);
   }, [selectedFile]);
 
-  function openFilePicker() {
-    fileInputRef.current?.click();
-  }
 
-  function handleFileChange(event: ChangeEvent<HTMLInputElement>) {
+
+  async function handleFileChange(event: ChangeEvent<HTMLInputElement>) {
     const file = event.target.files?.[0] || null;
 
     if (!file) {
@@ -127,14 +126,26 @@ export default function PetRegisterForm({ qrCode }: PetRegisterFormProps) {
       return;
     }
 
-    if (file.size > 10 * 1024 * 1024) {
+    if (file.size > 25 * 1024 * 1024) {
       setSelectedFile(null);
-      setFileError("La imagen no puede pesar más de 10 MB.");
+      setFileError("La imagen no puede pesar más de 25 MB.");
       return;
     }
 
-    setSelectedFile(file);
-    setFileError("");
+    try {
+      const compressedFile = await imageCompression(file, {
+        maxSizeMB: 1.5,
+        maxWidthOrHeight: 1920,
+        useWebWorker: true,
+      });
+
+      setSelectedFile(compressedFile);
+      setFileError("");
+    } catch {
+      setSelectedFile(null);
+      setFileError("No se pudo procesar la imagen.");
+    }
+
   }
 
   async function onSubmit(data: FormData) {
@@ -263,20 +274,18 @@ export default function PetRegisterForm({ qrCode }: PetRegisterFormProps) {
             <span className="text-xs text-slate-500">(opcional)</span>
           </div>
           <input
-            ref={fileInputRef}
+            id="pet-image-upload"
             type="file"
             accept="image/*"
             onChange={handleFileChange}
             className="hidden"
-            id="pet-image-input"
           />
-          <button
-            type="button"
-            onClick={openFilePicker}
-            className="inline-flex w-full items-center justify-center rounded-3xl border border-dashed border-slate-300 bg-slate-50 px-4 py-3 text-sm font-medium text-slate-700 transition hover:border-emerald-400 hover:bg-emerald-50"
+          <label
+            htmlFor="pet-image-upload"
+            className="cursor-pointer inline-flex items-center justify-center rounded-3xl bg-emerald-500 px-4 py-3 text-sm font-semibold text-white transition hover:bg-emerald-600"
           >
-            {selectedFile ? "Cambiar foto" : "Seleccionar foto"}
-          </button>
+            {selectedFile ? "Cambiar imagen" : "Elegir imagen"}
+          </label>
           {fileError ? <p className="text-sm text-red-600">{fileError}</p> : null}
           {previewUrl ? (
             <div className="overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm">
