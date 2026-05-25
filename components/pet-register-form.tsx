@@ -196,7 +196,7 @@ export default function PetRegisterForm({ qrCode }: PetRegisterFormProps) {
 
       setStatus("success");
       setMessage("Mascota registrada con éxito. Redirigiendo...");
-      setTimeout(() => router.refresh(), 1200);
+      setTimeout(() => router.refresh(), 6200);
     } catch (error) {
       console.error(error);
       setStatus("error");
